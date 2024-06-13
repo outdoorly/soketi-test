@@ -1,0 +1,16 @@
+{
+  "name": "soketi-test",
+  "version": "1.0.0",
+  "description": "test the pusher api and soketi docker container",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "./run"
+  },
+  "author": "Ben Kenawell",
+  "license": "ISC",
+  "dependencies": {
+    "pusher": "^5.2.0",
+    "pusher-js": "8.4.0-rc2"
+  }
+}

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+log () {
+  echo '[system]' $@
+}
+
+# check docker is running
+container_name=`docker compose ps -q`
+if [ "$( docker container inspect -f '{{.State.Running}}' ${container_name} 2>/dev/null )" = "true" ]; then
+  log 'docker is running'
+else
+  log 'starting docker'
+  docker compose up -d
+  sleep 1
+fi
+
+node client.js &
+log 'running client in background, starting server'
+sleep 0.5
+node server.js && log 'server has exited' && kill %1
+
