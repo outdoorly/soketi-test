@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-log () {
-  echo '[system]' $@
+log() {
+  echo -e '\033[38;5;46m[system]\033[39m' $@
 }
 
 # check docker is running
-container_name=`docker compose ps -q`
-if [ "$( docker container inspect -f '{{.State.Running}}' ${container_name} 2>/dev/null )" = "true" ]; then
+container_name=$(docker compose ps -q)
+if [ "$(docker container inspect -f '{{.State.Running}}' ${container_name} 2>/dev/null)" = "true" ]; then
   log 'docker is running'
 else
   log 'starting docker'
@@ -14,8 +14,18 @@ else
   sleep 1
 fi
 
+log 'starting server'
+node server.js 2>/dev/null &
+log 'starting client'
 node client.js &
-log 'running client in background, starting server'
 sleep 0.5
-node server.js && log 'server has exited' && kill %1
 
+log 'telling server to send message'
+curl http://localhost:4321/message
+log 'telling server to send message to user'
+curl http://localhost:4321/user
+
+log 'shutting down'
+jobs
+kill %1
+kill %2

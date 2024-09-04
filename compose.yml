@@ -1,8 +1,8 @@
-
 services:
   soketi:
     image: quay.io/soketi/soketi:1.4-16-debian
     ports:
       - 6001:6001
       - 9601:9601
-
+    environment:
+      - SOKETI_DEFAULT_APP_USER_AUTHENTICATION=true
