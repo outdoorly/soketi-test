@@ -1,7 +1,8 @@
 import PusherJS from "pusher-js";
+import chalk from "chalk";
 
 function log(...args) {
-  console.log("[client]", ...args);
+  console.log(chalk.blue("[client]"), ...args);
 }
 
 let client = new PusherJS("app-key", {
