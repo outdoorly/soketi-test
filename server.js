@@ -1,10 +1,11 @@
 import Pusher from "pusher";
 import express from "express";
+import chalk from "chalk";
 
 const app = express();
 
 function log(...args) {
-  console.log("[server]", ...args);
+  console.log(chalk.magenta("[server]"), ...args);
 }
 
 const pusher = new Pusher({
