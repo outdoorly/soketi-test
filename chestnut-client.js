@@ -44,12 +44,14 @@ function listen() {
     });
 }
 
-/** send a message to this conversation */
-function sendMessage() {
+/** send a message to this conversation
+ * @param {string | undefined} messageBody
+ * */
+function sendMessage(messageBody) {
   log("sending message via api");
   const vendorId =
     process.env.VENDOR_ID || "9a93c317-1fde-479b-b495-fad22def801e";
-  const messageBody = process.env.MESSAGE_BODY || "hi there!";
+  messageBody = messageBody || process.env.MESSAGE_BODY || "hi there!";
 
   log("sending body:", messageBody);
 
@@ -84,7 +86,7 @@ function sendMessage() {
 
 function all() {
   listen();
-  sendMessage();
+  sendMessage(getArg(bodyFlag));
 }
 
 function printHelp() {
@@ -96,21 +98,42 @@ COMMANDS
   send      send test message to chestnut that soketi will pick up
   all       (default) equivalent of running listen and run.
 
+FLAGS
+  -b | --body "messageBody"  taken by the all or send commands,
+                             messageBody will be sent as the message's 
+                             body to chestnut (overrides MESSAGE_BODY)
+
 ENV VARS
   LEAD             lead of vendor
   VENDOR_ID        id of vendor lead is in conversation on 
   CONVERSATION_ID  id of conversation to listen for messages on
-  MESSAGE_BODY     string to send as the message body
+  MESSAGE_BODY     string to send as the message body (is overriden by --body)
 `);
 }
 
 // --- process command line ---
 const args = process.argv;
+/** get a flag argument out of command line
+ *  @param {string | RegExp} flag
+ * */
+function getArg(flag) {
+  log("args", args);
+  const idx = args.findIndex(
+    (arg) => (typeof flag === "string" && flag === arg) || flag.test(arg),
+  );
+  if (idx < 0) return;
+  return args.at(idx + 1);
+}
+// `var` so I can define flags here and have their scope hoisted
+var bodyFlag = /^-b$|^--body$/i;
+const helpFlag = /^-h$|^--help$/i;
+
 args.shift(); // node
 args.shift(); // script file
-if (args.some((x) => /--?h(elp)?/.test(x))) printHelp();
-else if (args.length === 0 || args.includes("all")) all();
-else {
-  if (args.includes("listen")) listen();
-  if (args.includes("send")) sendMessage();
+const command = args.at(0);
+if (args.some((x) => helpFlag.test(x))) printHelp();
+else if (command === undefined || command === "all") all();
+else if (command === "listen") listen();
+else if (command === "send") {
+  sendMessage(getArg(bodyFlag));
 }
